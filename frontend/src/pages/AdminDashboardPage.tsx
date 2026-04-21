@@ -334,16 +334,34 @@ export default function AdminDashboardPage() {
 
           {!loading && activeTab === "Conversations" ? (
             <DataTable
-              columns={["Conversation ID", "User ID", "Task Type", "Rating", "Sentiment", "Issue Type", "Date"]}
-              rows={conversations.map((conversation) => [
-                conversation.conversation_id,
-                conversation.user_id,
-                conversation.task_type ?? "text",
-                conversation.rating ?? "-",
-                conversation.sentiment,
-                conversation.issue_type,
-                formatDate(conversation.created_at),
-              ])}
+              columns={
+                conversations.length
+                  ? (Object.keys(conversations[0]) as Array<keyof AdminConversationRow>).map((field) => titleize(String(field)))
+                  : ["Conversation ID", "User ID", "Task Type", "Sentiment", "Rating", "Issue Type", "Created At"]
+              }
+              rows={conversations.map((conversation) =>
+                (conversations.length ? (Object.keys(conversations[0]) as Array<keyof AdminConversationRow>) : ([
+                  "conversation_id",
+                  "user_id",
+                  "task_type",
+                  "sentiment",
+                  "rating",
+                  "issue_type",
+                  "created_at",
+                ] as Array<keyof AdminConversationRow>)).map((field) => {
+                  const value = conversation[field];
+
+                  if (field === "created_at" && typeof value === "string") {
+                    return formatDate(value);
+                  }
+
+                  if (typeof value === "string") {
+                    return value.length > 32 ? `${value.slice(0, 29)}...` : value;
+                  }
+
+                  return value ?? "-";
+                })
+              )}
               onRowClick={(index) => navigate(`/admin/conversations/${conversations[index].conversation_id}`)}
             />
           ) : null}
