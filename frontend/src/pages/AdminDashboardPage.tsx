@@ -361,24 +361,22 @@ export default function AdminDashboardPage() {
 
           {!loading && activeTab === "Insights" && insights ? (
             <div className="grid gap-4">
-              <section className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
-                <p className="text-sm font-medium uppercase tracking-[0.18em] text-cyan-300">Overall Summary</p>
-                <div className="mt-4 grid gap-5 lg:grid-cols-[1.3fr,0.7fr]">
-                  <div className="space-y-4">
-                    <p className="text-base leading-relaxed text-slate-100">{insights.summary}</p>
-                    <p className="text-sm leading-relaxed text-slate-300">
-                      User engagement is clustering around the strongest task categories, while repeated issue tags reveal where the product feels
-                      least reliable or least aligned with user intent.
-                    </p>
-                    <p className="text-sm leading-relaxed text-slate-300">
-                      The clearest opportunity is to improve output confidence, reduce quality misses, and sharpen the experience around the most
-                      heavily used task types.
-                    </p>
+              <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.15fr,0.85fr]">
+                <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-5 shadow">
+                  <p className="text-lg font-semibold text-white">Summary</p>
+                  <p className="mt-4 text-base leading-relaxed text-slate-100">{insights.summary}</p>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="rounded-2xl border border-cyan-300/10 bg-gradient-to-br from-sky-400/12 to-transparent p-4 shadow">
+                    <p className="text-sm font-medium text-slate-300">Most Critical Issue</p>
+                    <p className="mt-3 text-base leading-relaxed text-white">{insights.top_problems[0] ?? "Not enough data yet"}</p>
                   </div>
-                  <div className="grid gap-3">
-                    <HighlightChip text={`Most users are interacting with ${topTaskType(insights)} tasks`} />
-                    <HighlightChip text={`Primary issue: ${formatTag(insights.top_issue_tags[0] ?? "emerging patterns")}`} />
-                    <HighlightChip text={`Top opportunity: ${insights.improvement_suggestions[0] ?? "capture more suggestions"}`} />
+                  <div className="rounded-2xl border border-cyan-300/10 bg-gradient-to-br from-cyan-300/12 to-transparent p-4 shadow">
+                    <p className="text-sm font-medium text-slate-300">Biggest Opportunity</p>
+                    <p className="mt-3 text-base leading-relaxed text-white">
+                      {insights.improvement_suggestions[0] ?? "More feedback is needed"}
+                    </p>
                   </div>
                 </div>
               </section>
@@ -405,25 +403,48 @@ export default function AdminDashboardPage() {
                 ))}
               </section>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.1fr,0.9fr]">
                 <ChartCard title="Issue Types">
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsPieChart>
-                        <Pie data={issueTypeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={3}>
-                          {issueTypeData.map((entry, index) => (
-                            <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "#112742",
-                            border: "1px solid rgba(34,211,238,0.15)",
-                            borderRadius: "16px",
-                          }}
-                        />
-                      </RechartsPieChart>
-                    </ResponsiveContainer>
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),220px] lg:items-center">
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie data={issueTypeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={3}>
+                            {issueTypeData.map((entry, index) => (
+                              <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#112742",
+                              border: "1px solid rgba(34,211,238,0.15)",
+                              borderRadius: "16px",
+                            }}
+                          />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="grid gap-3">
+                      {issueTypeData.length ? (
+                        issueTypeData.map((entry, index) => (
+                          <div key={`${entry.name}-legend`} className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] px-3 py-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className="h-3 w-3 rounded-full"
+                                  style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                                />
+                                <span className="text-sm text-slate-200">{entry.name}</span>
+                              </div>
+                              <span className="text-sm text-slate-400">{entry.value}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <EmptyState text="No issue type insights available yet." />
+                      )}
+                    </div>
                   </div>
                 </ChartCard>
 
@@ -448,38 +469,115 @@ export default function AdminDashboardPage() {
                 </ChartCard>
               </div>
 
-              <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <InfoCard title="Most Critical Issue" value={insights.top_problems[0] ?? "Not enough data yet"} accent="blue" />
-                <InfoCard title="Biggest Opportunity" value={insights.improvement_suggestions[0] ?? "More feedback is needed"} accent="cyan" />
-              </section>
-
-              <section className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
-                <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-400">Biggest Opportunities</p>
-                <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {insights.improvement_suggestions.map((suggestion, index) => (
-                    <div key={`${suggestion}-${index}`} className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
-                      <p className="text-sm font-semibold text-cyan-100">{shortTitle(suggestion)}</p>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-200">{suggestion}</p>
+              <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                <div className="grid gap-4">
+                  <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
+                    <p className="text-lg font-semibold text-white">Top Problems</p>
+                    <div className="mt-4 grid max-h-[280px] grid-cols-1 gap-3 overflow-y-auto pr-1">
+                      {insights.top_problems.length ? (
+                        insights.top_problems.map((problem, index) => (
+                          <div key={`${problem}-${index}`} className="rounded-md border border-cyan-300/10 bg-[#0d223b] px-4 py-3">
+                            <p className="text-sm leading-relaxed text-slate-200">{problem}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <EmptyState text="No top problems yet." />
+                      )}
                     </div>
-                  ))}
-                  {!insights.improvement_suggestions.length ? <EmptyState text="No improvement opportunities have been identified yet." /> : null}
+                  </div>
+
+                  <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
+                    <p className="text-lg font-semibold text-white">Highlights</p>
+                    <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                      <div className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="mt-0.5 text-cyan-300">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path d="M5 12H19M12 5V19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            </svg>
+                          </span>
+                          <div>
+                            <p className="text-sm font-medium text-slate-300">Top Task</p>
+                            <p className="mt-2 text-sm leading-relaxed text-slate-200">{topTaskType(insights)}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="mt-0.5 text-cyan-300">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path d="M12 3L21 19H3L12 3Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                              <path d="M12 9V13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                              <circle cx="12" cy="16.5" r="1" fill="currentColor" />
+                            </svg>
+                          </span>
+                          <div>
+                            <p className="text-sm font-medium text-slate-300">Most Critical Issue</p>
+                            <p className="mt-2 text-sm leading-relaxed text-slate-200">
+                              {formatTag(insights.top_issue_tags[0] ?? "emerging patterns")}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="mt-0.5 text-cyan-300">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path d="M12 4V20M4 12H20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            </svg>
+                          </span>
+                          <div>
+                            <p className="text-sm font-medium text-slate-300">Biggest Opportunity</p>
+                            <p className="mt-2 text-sm leading-relaxed text-slate-200">
+                              {insights.improvement_suggestions[0] ?? "capture more suggestions"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
+                  <p className="text-lg font-semibold text-white">Improvement Suggestions</p>
+                  <div className="mt-4 grid max-h-[360px] grid-cols-1 gap-4 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
+                    {insights.improvement_suggestions.length ? (
+                      insights.improvement_suggestions.map((suggestion, index) => (
+                        <div
+                          key={`${suggestion}-${index}`}
+                          className="rounded-2xl border border-cyan-300/10 bg-gradient-to-br from-cyan-300/8 to-transparent p-4 transition hover:border-cyan-300/20"
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="mt-0.5 text-cyan-300">
+                              {/(bug|error|latency|performance|system|technical|integration|processing|pipeline|model)/i.test(suggestion) ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                  <path d="M10 4H14M12 4V8M7 9H17L18 12L17 15H7L6 12L7 9Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                                  <path d="M9 15V19M15 15V19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                                </svg>
+                              ) : /(quality|accuracy|confidence|verify|validation|consistency|review)/i.test(suggestion) ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                  <path d="M5 12L9.5 16.5L19 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                  <circle cx="12" cy="8" r="3" stroke="currentColor" strokeWidth="1.8" />
+                                  <path d="M6 19C6 16.7909 8.68629 15 12 15C15.3137 15 18 16.7909 18 19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                                </svg>
+                              )}
+                            </span>
+                            <div>
+                              <p className="text-sm font-semibold text-cyan-100">{shortTitle(suggestion)}</p>
+                              <p className="mt-2 text-base leading-relaxed text-slate-200">{suggestion}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState text="No improvement opportunities have been identified yet." />
+                    )}
+                  </div>
                 </div>
               </section>
-
-              <InsightCarousel title="Top Problems Carousel" subtitle="Scroll horizontally to review the strongest recurring pain points.">
-                {insights.top_problems.length ? (
-                  insights.top_problems.map((problem, index) => (
-                    <div key={`${problem}-${index}`} className="w-[280px] shrink-0 rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
-                      <p className="text-sm font-semibold text-cyan-100">{shortTitle(problem)}</p>
-                      <p className="mt-2 text-sm leading-relaxed text-slate-200">{problem}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="w-[280px] shrink-0 rounded-2xl border border-white/10 bg-slate-950/45 p-4 text-sm text-slate-400">
-                    No top problems yet.
-                  </div>
-                )}
-              </InsightCarousel>
             </div>
           ) : null}
         </section>
