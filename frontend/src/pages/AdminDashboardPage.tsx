@@ -13,8 +13,6 @@ import {
   LineChart,
   Pie,
   PieChart as RechartsPieChart,
-  RadialBar,
-  RadialBarChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -45,13 +43,13 @@ type AdminTab = "Dashboard" | "Conversations" | "Feedbacks" | "Users" | "Insight
 
 const TABS: AdminTab[] = ["Dashboard", "Conversations", "Feedbacks", "Users", "Insights"];
 const TASK_TYPES: TaskType[] = ["text", "image", "audio", "video", "document"];
-const PIE_COLORS = ["#34d399", "#fb7185", "#fbbf24"];
+const PIE_COLORS = ["#22d3ee", "#38bdf8", "#60a5fa"];
 const TASK_COLORS: Record<TaskType, string> = {
-  text: "#38bdf8",
-  image: "#fb923c",
-  audio: "#34d399",
-  video: "#a78bfa",
-  document: "#f87171",
+  text: "#22d3ee",
+  image: "#38bdf8",
+  audio: "#0ea5e9",
+  video: "#60a5fa",
+  document: "#2563eb",
 };
 
 export default function AdminDashboardPage() {
@@ -142,161 +140,195 @@ export default function AdminDashboardPage() {
   );
 
   return (
-    <main className="h-screen overflow-hidden px-4 py-4 sm:px-6 sm:py-6">
-      <div className="mx-auto flex h-full w-full max-w-[1500px] flex-col gap-4 rounded-[32px] border border-white/10 bg-slate-950/60 p-4 shadow-panel backdrop-blur sm:p-6">
-        <header className="flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
+    <main className="flex h-screen overflow-hidden bg-[#0A192F] text-slate-100">
+      <aside className="flex w-[260px] shrink-0 flex-col overflow-hidden border-r border-cyan-300/10 bg-[#0d2039]">
+        <div className="border-b border-cyan-300/10 px-5 py-5">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-cyan-300">Admin</p>
+          <h1 className="mt-1 text-xl font-semibold text-white">Admin Dashboard</h1>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <nav className="space-y-2">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`flex w-full items-center rounded-2xl px-4 py-3 text-left text-base font-medium transition ${
+                  activeTab === tab
+                    ? "border border-cyan-300/25 bg-cyan-300/12 text-cyan-100"
+                    : "border border-transparent text-slate-300 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <header className="flex shrink-0 items-center justify-between border-b border-cyan-300/10 bg-[#0b1d35] px-6 py-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-sky-200">Admin Control Room</p>
-            <h1 className="mt-2 text-3xl font-bold text-white">Feedback Analytics Dashboard</h1>
+            <p className="text-sm font-medium text-slate-400">Admin Dashboard</p>
+            <h2 className="text-lg font-semibold text-white">{activeTab}</h2>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate("/")}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
             >
-              Back to User Dashboard
+              User Dashboard
             </button>
             <button
               onClick={() => {
                 logoutAdmin();
                 navigate("/login?mode=admin");
               }}
-              className="rounded-2xl border border-orange-300/30 bg-orange-400/10 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-orange-400/20"
+              className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/20"
             >
-              Admin Logout
+              Logout
             </button>
           </div>
         </header>
 
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                activeTab === tab ? "bg-white text-slate-950" : "border border-white/10 bg-white/5 text-slate-300"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <section className="min-h-0 flex-1 overflow-y-auto pr-1">
-          {loading ? <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-slate-300 shadow">Loading admin data...</div> : null}
+        <section className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+          {loading ? <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-6 text-base text-slate-300">Loading admin data...</div> : null}
 
           {!loading && activeTab === "Dashboard" && overview && insights ? (
-            <div className="grid gap-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <MetricCard label="Total Conversations" value={String(overview.total_conversations)} accent="orange" />
-                <MetricCard label="Avg Rating" value={overview.avg_rating.toFixed(2)} accent="sky" />
-                <MetricCard label="Positive %" value={`${positivePercent}%`} accent="emerald" />
+            <div className="grid gap-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <MetricCard label="Total Conversations" value={String(overview.total_conversations)} accent="cyan" />
+                <MetricCard label="Average Rating" value={overview.avg_rating.toFixed(2)} accent="blue" />
+                <MetricCard label="Positive %" value={`${positivePercent}%`} accent="sky" />
               </div>
 
-              <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
                 {dashboardTaskCards.map(({ taskType, detail }) => (
-                  <div key={taskType} className="rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow-md">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold capitalize text-white">{taskType}</h3>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">
-                        {detail.count} total
-                      </span>
-                    </div>
-                    <div className="mt-4 grid gap-4 sm:grid-cols-[130px,1fr]">
-                      <div className="h-[120px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsPieChart>
-                            <Pie
-                              data={[
-                                { name: "Positive", value: detail.sentiment.positive ?? 0 },
-                                { name: "Negative", value: detail.sentiment.negative ?? 0 },
-                                { name: "Mixed", value: detail.sentiment.mixed ?? 0 },
-                              ]}
-                              dataKey="value"
-                              innerRadius={28}
-                              outerRadius={46}
-                              paddingAngle={3}
-                            >
-                              {PIE_COLORS.map((color, index) => (
-                                <Cell key={`${taskType}-${color}-${index}`} fill={color} />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                          </RechartsPieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="space-y-3">
-                        <LegendRow color="bg-emerald-400" label="Positive" value={detail.sentiment.positive ?? 0} />
-                        <LegendRow color="bg-rose-400" label="Negative" value={detail.sentiment.negative ?? 0} />
-                        <LegendRow color="bg-amber-400" label="Mixed" value={detail.sentiment.mixed ?? 0} />
-                      </div>
-                    </div>
-                    <div className="mt-4 grid grid-cols-2 gap-3">
-                      <QuickStat label="Total Count" value={String(detail.count)} />
-                      <QuickStat label="Avg Rating" value={detail.avg_rating ? detail.avg_rating.toFixed(1) : "N/A"} />
-                    </div>
-                  </div>
+                  <InputTypeCard
+                    key={taskType}
+                    taskType={taskType}
+                    count={detail.count}
+                    avgRating={detail.avg_rating}
+                    sentimentTotal={(detail.sentiment.positive ?? 0) + (detail.sentiment.negative ?? 0) + (detail.sentiment.mixed ?? 0)}
+                    progressValue={Math.max(8, Math.min(100, Math.round((detail.avg_rating / 5) * 100) || 0))}
+                  />
                 ))}
               </section>
 
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                <ChartCard title="Rating Distribution">
-                  <div className="h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={overview.rating_distribution}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
-                        <XAxis dataKey="rating" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" />
-                        <Tooltip />
-                        <Bar dataKey="count" radius={[8, 8, 0, 0]} fill="#38bdf8" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </ChartCard>
-
-                <ChartCard title="Sentiment Trend">
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <ChartCard title="Sentiment Trends">
                   <div className="h-[280px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={overview.sentiment_trend}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
-                        <XAxis dataKey="date" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" />
-                        <Tooltip />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.10)" />
+                        <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#112742",
+                            border: "1px solid rgba(34,211,238,0.15)",
+                            borderRadius: "16px",
+                          }}
+                        />
                         <Legend />
-                        <Line type="monotone" dataKey="positive" stroke="#34d399" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="negative" stroke="#fb7185" strokeWidth={2} dot={false} />
-                        <Line type="monotone" dataKey="mixed" stroke="#fbbf24" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="positive" stroke="#22d3ee" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="negative" stroke="#38bdf8" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="mixed" stroke="#60a5fa" strokeWidth={2} dot={false} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </ChartCard>
+
+                <ChartCard title="Issue Types">
+                  <div className="h-[280px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={criticalIssuesData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.10)" />
+                        <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#112742",
+                            border: "1px solid rgba(34,211,238,0.15)",
+                            borderRadius: "16px",
+                          }}
+                        />
+                        <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#38bdf8" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </ChartCard>
               </div>
 
-              <ChartCard title="Task Usage Trend">
-                <div className="h-[320px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={overview.task_usage_trend}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
-                      <XAxis dataKey="date" stroke="#94a3b8" />
-                      <YAxis stroke="#94a3b8" />
-                      <Tooltip />
-                      <Legend />
-                      {TASK_TYPES.map((taskType) => (
-                        <Area
-                          key={taskType}
-                          type="monotone"
-                          dataKey={taskType}
-                          stackId="usage"
-                          stroke={TASK_COLORS[taskType]}
-                          fill={TASK_COLORS[taskType]}
-                          fillOpacity={0.25}
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+                <ChartCard title="Task Usage Trend">
+                  <div className="h-[320px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={overview.task_usage_trend}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.10)" />
+                        <XAxis dataKey="date" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#112742",
+                            border: "1px solid rgba(34,211,238,0.15)",
+                            borderRadius: "16px",
+                          }}
                         />
-                      ))}
-                    </AreaChart>
-                  </ResponsiveContainer>
+                        <Legend />
+                        {TASK_TYPES.map((taskType) => (
+                          <Area
+                            key={taskType}
+                            type="monotone"
+                            dataKey={taskType}
+                            stackId="usage"
+                            stroke={TASK_COLORS[taskType]}
+                            fill={TASK_COLORS[taskType]}
+                            fillOpacity={0.2}
+                          />
+                        ))}
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </ChartCard>
+
+                <div className="grid gap-6">
+                  <ChartCard title="Issue Insights">
+                    <div className="grid gap-3">
+                      {issueTypeData.length ? (
+                        issueTypeData.slice(0, 4).map((item, index) => (
+                          <InsightRow key={`${item.name}-${index}`} label={item.name} value={item.value} total={sumValues(issueTypeData)} />
+                        ))
+                      ) : (
+                        <EmptyState text="No issue type insights available yet." />
+                      )}
+                    </div>
+                  </ChartCard>
+
+                  <ChartCard title="Task Sentiment Snapshot">
+                    <div className="grid gap-3">
+                      {sentimentByTask.length ? (
+                        sentimentByTask.map((row) => (
+                          <div key={row.task_type} className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-base font-medium capitalize text-white">{row.task_type}</p>
+                              <span className="text-sm text-slate-400">{row.positive + row.negative + row.mixed} total</span>
+                            </div>
+                            <div className="mt-3 grid grid-cols-3 gap-2">
+                              <LegendRow color="bg-cyan-300" label="Positive" value={row.positive} />
+                              <LegendRow color="bg-sky-400" label="Negative" value={row.negative} />
+                              <LegendRow color="bg-blue-400" label="Mixed" value={row.mixed} />
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <EmptyState text="No sentiment snapshot available yet." />
+                      )}
+                    </div>
+                  </ChartCard>
                 </div>
-              </ChartCard>
+              </div>
             </div>
           ) : null}
 
@@ -329,16 +361,16 @@ export default function AdminDashboardPage() {
 
           {!loading && activeTab === "Insights" && insights ? (
             <div className="grid gap-4">
-              <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950/60 p-4 shadow lg:p-6">
-                <p className="text-xs uppercase tracking-[0.24em] text-sky-200">Overall Summary</p>
+              <section className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
+                <p className="text-sm font-medium uppercase tracking-[0.18em] text-cyan-300">Overall Summary</p>
                 <div className="mt-4 grid gap-5 lg:grid-cols-[1.3fr,0.7fr]">
                   <div className="space-y-4">
-                    <p className="text-base leading-7 text-slate-100">{insights.summary}</p>
-                    <p className="text-sm leading-7 text-slate-300">
+                    <p className="text-base leading-relaxed text-slate-100">{insights.summary}</p>
+                    <p className="text-sm leading-relaxed text-slate-300">
                       User engagement is clustering around the strongest task categories, while repeated issue tags reveal where the product feels
                       least reliable or least aligned with user intent.
                     </p>
-                    <p className="text-sm leading-7 text-slate-300">
+                    <p className="text-sm leading-relaxed text-slate-300">
                       The clearest opportunity is to improve output confidence, reduce quality misses, and sharpen the experience around the most
                       heavily used task types.
                     </p>
@@ -353,32 +385,19 @@ export default function AdminDashboardPage() {
 
               <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {dashboardTaskCards.map(({ taskType, detail }) => (
-                  <div key={taskType} className="rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow-md">
+                  <div key={taskType} className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold capitalize text-white">{taskType}</h3>
-                      <span className="text-xs uppercase tracking-[0.2em] text-slate-400">{detail.count} uses</span>
+                      <span className="text-sm text-slate-400">{detail.count} uses</span>
                     </div>
                     <div className="mt-4 h-[150px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <RadialBarChart
-                          innerRadius="58%"
-                          outerRadius="88%"
-                          barSize={14}
-                          data={[{ name: "Avg Rating", value: (detail.avg_rating / 5) * 100, fill: TASK_COLORS[taskType] }]}
-                          startAngle={90}
-                          endAngle={-270}
-                        >
-                          <RadialBar background dataKey="value" cornerRadius={10} />
-                          <text x="50%" y="46%" textAnchor="middle" dominantBaseline="middle" className="fill-white text-xl font-bold">
-                            {detail.avg_rating ? detail.avg_rating.toFixed(1) : "--"}
-                          </text>
-                          <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-400 text-[10px] uppercase tracking-[0.2em]">
-                            / 5
-                          </text>
-                        </RadialBarChart>
+                        <AreaChart data={[{ value: 0 }, { value: (detail.avg_rating / 5) * 100 || 0 }]}>
+                          <Area type="monotone" dataKey="value" stroke={TASK_COLORS[taskType]} fill={TASK_COLORS[taskType]} fillOpacity={0.2} />
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
-                    <p className="text-center text-xs uppercase tracking-[0.2em] text-slate-400">Avg Rating</p>
+                    <p className="text-center text-sm text-slate-400">Avg Rating: {detail.avg_rating ? detail.avg_rating.toFixed(1) : "--"}</p>
                     <p className="mt-4 text-sm text-slate-300">
                       Most issues: {detail.top_issues.length ? detail.top_issues.map(formatTag).join(", ") : "No consistent issue pattern yet"}
                     </p>
@@ -387,16 +406,22 @@ export default function AdminDashboardPage() {
               </section>
 
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <ChartCard title="Issue Type Distribution">
+                <ChartCard title="Issue Types">
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsPieChart>
                         <Pie data={issueTypeData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={3}>
                           {issueTypeData.map((entry, index) => (
-                            <Cell key={entry.name} fill={["#38bdf8", "#fb923c", "#34d399", "#a78bfa"][index % 4]} />
+                            <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#112742",
+                            border: "1px solid rgba(34,211,238,0.15)",
+                            borderRadius: "16px",
+                          }}
+                        />
                       </RechartsPieChart>
                     </ResponsiveContainer>
                   </div>
@@ -406,11 +431,17 @@ export default function AdminDashboardPage() {
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={criticalIssuesData} layout="vertical" margin={{ top: 8, right: 16, left: 16, bottom: 8 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" />
-                        <XAxis type="number" stroke="#94a3b8" />
-                        <YAxis dataKey="name" type="category" width={120} stroke="#94a3b8" />
-                        <Tooltip />
-                        <Bar dataKey="value" radius={[0, 8, 8, 0]} fill="#fb923c" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.10)" />
+                        <XAxis type="number" stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <YAxis dataKey="name" type="category" width={120} stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#112742",
+                            border: "1px solid rgba(34,211,238,0.15)",
+                            borderRadius: "16px",
+                          }}
+                        />
+                        <Bar dataKey="value" radius={[0, 8, 8, 0]} fill="#38bdf8" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -418,17 +449,17 @@ export default function AdminDashboardPage() {
               </div>
 
               <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <InfoCard title="Most Critical Issue" value={insights.top_problems[0] ?? "Not enough data yet"} accent="rose" />
-                <InfoCard title="Biggest Opportunity" value={insights.improvement_suggestions[0] ?? "More feedback is needed"} accent="emerald" />
+                <InfoCard title="Most Critical Issue" value={insights.top_problems[0] ?? "Not enough data yet"} accent="blue" />
+                <InfoCard title="Biggest Opportunity" value={insights.improvement_suggestions[0] ?? "More feedback is needed"} accent="cyan" />
               </section>
 
-              <section className="rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow lg:p-6">
-                <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Biggest Opportunities</p>
+              <section className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
+                <p className="text-sm font-medium uppercase tracking-[0.18em] text-slate-400">Biggest Opportunities</p>
                 <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {insights.improvement_suggestions.map((suggestion, index) => (
-                    <div key={`${suggestion}-${index}`} className="rounded-2xl border border-sky-300/20 bg-sky-400/10 p-4">
-                      <p className="text-sm font-semibold text-sky-100">{shortTitle(suggestion)}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">{suggestion}</p>
+                    <div key={`${suggestion}-${index}`} className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
+                      <p className="text-sm font-semibold text-cyan-100">{shortTitle(suggestion)}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-200">{suggestion}</p>
                     </div>
                   ))}
                   {!insights.improvement_suggestions.length ? <EmptyState text="No improvement opportunities have been identified yet." /> : null}
@@ -438,9 +469,9 @@ export default function AdminDashboardPage() {
               <InsightCarousel title="Top Problems Carousel" subtitle="Scroll horizontally to review the strongest recurring pain points.">
                 {insights.top_problems.length ? (
                   insights.top_problems.map((problem, index) => (
-                    <div key={`${problem}-${index}`} className="w-[280px] shrink-0 rounded-2xl border border-orange-300/20 bg-orange-400/10 p-4">
-                      <p className="text-sm font-semibold text-orange-100">{shortTitle(problem)}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">{problem}</p>
+                    <div key={`${problem}-${index}`} className="w-[280px] shrink-0 rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-4">
+                      <p className="text-sm font-semibold text-cyan-100">{shortTitle(problem)}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-200">{problem}</p>
                     </div>
                   ))
                 ) : (
@@ -457,25 +488,62 @@ export default function AdminDashboardPage() {
   );
 }
 
-function MetricCard({ label, value, accent }: { label: string; value: string; accent: "orange" | "sky" | "emerald" }) {
+function MetricCard({ label, value, accent }: { label: string; value: string; accent: "cyan" | "blue" | "sky" }) {
   const accents = {
-    orange: "from-orange-500/25 to-amber-300/10",
-    sky: "from-sky-500/25 to-cyan-300/10",
-    emerald: "from-emerald-500/25 to-lime-300/10",
+    cyan: "from-cyan-300/18 to-transparent",
+    blue: "from-sky-400/18 to-transparent",
+    sky: "from-blue-400/18 to-transparent",
   };
 
   return (
-    <div className={`rounded-2xl border border-white/10 bg-gradient-to-br p-4 shadow lg:p-6 ${accents[accent]}`}>
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-300">{label}</p>
-      <p className="mt-4 text-4xl font-bold text-white">{value}</p>
+    <div className={`rounded-2xl border border-cyan-300/10 bg-gradient-to-br ${accents[accent]} p-4 shadow`}>
+      <p className="text-sm font-medium text-slate-400">{label}</p>
+      <p className="mt-3 text-xl font-semibold text-white">{value}</p>
+    </div>
+  );
+}
+
+function InputTypeCard({
+  taskType,
+  count,
+  avgRating,
+  sentimentTotal,
+  progressValue,
+}: {
+  taskType: TaskType;
+  count: number;
+  avgRating: number;
+  sentimentTotal: number;
+  progressValue: number;
+}) {
+  const progressBackground = {
+    background: `conic-gradient(${TASK_COLORS[taskType]} ${progressValue}%, rgba(148,163,184,0.12) ${progressValue}% 100%)`,
+  };
+
+  return (
+    <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow transition hover:border-cyan-300/20">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-lg font-semibold capitalize text-white">{taskType}</p>
+          <p className="mt-1 text-sm text-slate-400">{count} total uses</p>
+        </div>
+        <div className="flex h-16 w-16 items-center justify-center rounded-full p-[5px]" style={progressBackground}>
+          <div className="flex h-full w-full items-center justify-center rounded-full bg-[#0A192F] text-cyan-300">{renderTaskIcon(taskType)}</div>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <QuickStat label="Rating" value={avgRating ? avgRating.toFixed(1) : "N/A"} />
+        <QuickStat label="Usage" value={String(sentimentTotal || count)} />
+      </div>
     </div>
   );
 }
 
 function ChartCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/65 p-4 shadow lg:p-6">
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-400">{title}</p>
+    <div className="rounded-2xl border border-cyan-300/10 bg-[#112742] p-4 shadow">
+      <p className="text-sm font-medium uppercase tracking-[0.18em] text-cyan-300">{title}</p>
       <div className="mt-4">{children}</div>
     </div>
   );
@@ -483,21 +551,37 @@ function ChartCard({ title, children }: { title: string; children: ReactNode }) 
 
 function LegendRow({ color, label, value }: { color: string; label: string; value: number }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/45 px-3 py-2">
+    <div className="flex items-center justify-between gap-2 rounded-xl border border-cyan-300/10 bg-[#0d223b] px-3 py-2">
       <div className="flex items-center gap-2">
         <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
         <span className="text-sm text-slate-300">{label}</span>
       </div>
-      <span className="text-sm font-semibold text-white">{value}</span>
+      <span className="text-sm font-medium text-white">{value}</span>
+    </div>
+  );
+}
+
+function InsightRow({ label, value, total }: { label: string; value: number; total: number }) {
+  const width = total ? Math.round((value / total) * 100) : 0;
+
+  return (
+    <div className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] p-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-base font-medium text-white">{label}</p>
+        <span className="text-sm text-slate-400">{value}</span>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-800/80">
+        <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-sky-400" style={{ width: `${width}%` }} />
+      </div>
     </div>
   );
 }
 
 function QuickStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/45 px-3 py-3">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">{label}</p>
-      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+    <div className="rounded-xl border border-cyan-300/10 bg-[#0d223b] px-3 py-3">
+      <p className="text-sm text-slate-400">{label}</p>
+      <p className="mt-1 text-base font-medium text-white">{value}</p>
     </div>
   );
 }
@@ -512,13 +596,13 @@ function DataTable({
   onRowClick?: (index: number) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/65 shadow">
+    <div className="overflow-hidden rounded-2xl border border-cyan-300/10 bg-[#112742] shadow">
       <div className="max-h-[68vh] overflow-auto">
         <table className="min-w-full text-left text-sm text-slate-200">
-          <thead className="sticky top-0 bg-slate-950/95">
+          <thead className="sticky top-0 bg-[#0b1d35]">
             <tr>
               {columns.map((column) => (
-                <th key={column} className="px-4 py-3 font-semibold text-slate-300">
+                <th key={column} className="px-4 py-3 font-medium text-slate-300">
                   {column}
                 </th>
               ))}
@@ -529,7 +613,7 @@ function DataTable({
               <tr
                 key={`${row[0]}-${index}`}
                 onClick={() => onRowClick?.(index)}
-                className={`border-t border-white/5 ${onRowClick ? "cursor-pointer transition hover:bg-white/5" : ""}`}
+                className={`border-t border-cyan-300/5 ${onRowClick ? "cursor-pointer transition hover:bg-white/5" : ""}`}
               >
                 {row.map((cell, cellIndex) => (
                   <td key={`${cellIndex}-${cell}`} className="px-4 py-3 whitespace-nowrap">
@@ -555,14 +639,14 @@ function FeedbackTable({
   onToggleExpanded: (feedbackId: number | null) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/65 shadow">
+    <div className="overflow-hidden rounded-2xl border border-cyan-300/10 bg-[#112742] shadow">
       <div className="max-h-[68vh] overflow-auto">
         <table className="min-w-full text-left text-sm text-slate-200">
-          <thead className="sticky top-0 bg-slate-950/95">
+          <thead className="sticky top-0 bg-[#0b1d35]">
             <tr>
               {["Feedback ID", "Conversation ID", "User ID", "Rating", "Sentiment", "Issue Type", "Issue Tags", "Summary", "Created At"].map(
                 (column) => (
-                  <th key={column} className="px-4 py-3 font-semibold text-slate-300">
+                  <th key={column} className="px-4 py-3 font-medium text-slate-300">
                     {column}
                   </th>
                 )
@@ -573,7 +657,7 @@ function FeedbackTable({
             {feedbacks.map((feedback) => {
               const expanded = expandedFeedback === feedback.feedback_id;
               return (
-                <tr key={feedback.feedback_id} className="border-t border-white/5 align-top">
+                <tr key={feedback.feedback_id} className="border-t border-cyan-300/5 align-top">
                   <td className="px-4 py-3">{feedback.feedback_id}</td>
                   <td className="px-4 py-3">{feedback.conversation_id}</td>
                   <td className="px-4 py-3">{feedback.user_id}</td>
@@ -603,7 +687,7 @@ function FeedbackTable({
                         {feedback.summary || "No summary available"}
                       </span>
                       {feedback.summary ? (
-                        <span className="mt-2 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">
+                        <span className="mt-2 inline-block text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
                           {expanded ? "Show Less" : "Expand"}
                         </span>
                       ) : null}
@@ -621,25 +705,88 @@ function FeedbackTable({
 }
 
 function HighlightChip({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200">{text}</div>;
+  return <div className="rounded-2xl border border-cyan-300/10 bg-[#0d223b] px-4 py-3 text-sm leading-relaxed text-slate-200">{text}</div>;
 }
 
-function InfoCard({ title, value, accent }: { title: string; value: string; accent: "rose" | "emerald" }) {
-  const accentClass =
-    accent === "rose"
-      ? "from-rose-500/20 to-orange-300/10 text-rose-100"
-      : "from-emerald-500/20 to-lime-300/10 text-emerald-100";
+function InfoCard({ title, value, accent }: { title: string; value: string; accent: "blue" | "cyan" }) {
+  const accentClass = accent === "blue" ? "from-sky-400/18 to-transparent" : "from-cyan-300/18 to-transparent";
 
   return (
-    <div className={`rounded-2xl border border-white/10 bg-gradient-to-br p-4 shadow lg:p-6 ${accentClass}`}>
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-300">{title}</p>
-      <p className="mt-4 text-lg leading-8 text-white">{value}</p>
+    <div className={`rounded-2xl border border-cyan-300/10 bg-gradient-to-br ${accentClass} p-4 shadow`}>
+      <p className="text-sm font-medium text-slate-300">{title}</p>
+      <p className="mt-4 text-lg leading-relaxed text-white">{value}</p>
     </div>
   );
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-dashed border-white/10 bg-slate-950/45 p-4 text-sm text-slate-400">{text}</div>;
+  return <div className="rounded-2xl border border-dashed border-cyan-300/10 bg-[#0d223b] p-4 text-sm text-slate-400">{text}</div>;
+}
+
+function renderTaskIcon(taskType: TaskType) {
+  switch (taskType) {
+    case "text":
+      return <TextTaskIcon />;
+    case "image":
+      return <ImageTaskIcon />;
+    case "audio":
+      return <AudioTaskIcon />;
+    case "video":
+      return <VideoTaskIcon />;
+    case "document":
+      return <DocumentTaskIcon />;
+    default:
+      return <TextTaskIcon />;
+  }
+}
+
+function TextTaskIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 7H19M5 12H15M5 17H13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ImageTaskIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="9" cy="10" r="1.5" fill="currentColor" />
+      <path d="M7 16L11 12L14 14L17 11L19 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function AudioTaskIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 14V10M10 17V7M14 15V9M18 13V11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function VideoTaskIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="7" width="11" height="10" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M15 11L20 8V16L15 13V11Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function DocumentTaskIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M8 4H14L18 8V20H8V4Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M14 4V8H18" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M10 12H16M10 16H15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function sumValues(items: Array<{ value: number }>) {
+  return items.reduce((total, item) => total + item.value, 0);
 }
 
 function formatDate(value: string) {
