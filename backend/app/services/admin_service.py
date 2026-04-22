@@ -34,10 +34,12 @@ class AdminService:
             select(
                 Conversation.id,
                 Conversation.user_id,
+                Conversation.state,
                 Conversation.task_type,
                 Feedback.sentiment,
                 Feedback.rating,
                 Feedback.issue_type,
+                Conversation.context,
                 Conversation.created_at,
             )
             .outerjoin(Feedback, Feedback.conversation_id == Conversation.id)
@@ -48,11 +50,13 @@ class AdminService:
             AdminConversationRow(
                 conversation_id=row[0],
                 user_id=row[1],
-                task_type=row[2],
-                sentiment=row[3] or "mixed",
-                rating=row[4],
-                issue_type=row[5] or "none",
-                created_at=row[6],
+                state=row[2],
+                task_type=row[3],
+                sentiment=row[4] or "mixed",
+                rating=row[5],
+                issue_type=row[6] or "none",
+                context=row[7] or {},
+                created_at=row[8],
             )
             for row in rows
         ]
@@ -116,6 +120,8 @@ class AdminService:
                 Feedback.rating,
                 Feedback.sentiment,
                 Feedback.issue_type,
+                Feedback.positives,
+                Feedback.negatives,
                 Feedback.issue_tags,
                 Feedback.summary,
                 Feedback.created_at,
@@ -132,9 +138,11 @@ class AdminService:
                 rating=row[3],
                 sentiment=row[4],
                 issue_type=row[5],
-                issue_tags=row[6] or [],
-                summary=row[7] or "",
-                created_at=row[8],
+                positives=row[6] or [],
+                negatives=row[7] or [],
+                issue_tags=row[8] or [],
+                summary=row[9] or "",
+                created_at=row[10],
             )
             for row in rows
         ]

@@ -78,10 +78,12 @@ export interface CreateConversationResponse {
 export interface AdminConversationRow {
   conversation_id: number;
   user_id: number;
+  state: ConversationState;
   task_type: TaskType | null;
   sentiment: string;
   rating: number | null;
   issue_type: string;
+  context: Record<string, unknown>;
   created_at: string;
 }
 
@@ -131,6 +133,8 @@ export interface AdminFeedbackRow {
   rating: number | null;
   sentiment: string;
   issue_type: string;
+  positives: string[];
+  negatives: string[];
   issue_tags: string[];
   summary: string;
   created_at: string;

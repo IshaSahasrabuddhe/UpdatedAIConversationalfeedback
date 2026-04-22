@@ -27,28 +27,28 @@ export default function AdminConversationDetailPage() {
   }, [logoutAdmin, navigate, params.conversationId]);
 
   return (
-    <main className="h-screen overflow-hidden px-4 py-4 sm:px-6 sm:py-6">
-      <div className="mx-auto flex h-full w-full max-w-[1500px] flex-col gap-4 rounded-[32px] border border-white/10 bg-slate-950/60 p-4 shadow-panel backdrop-blur sm:p-6">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-5">
+    <main className="h-screen overflow-hidden bg-[#0A192F] px-4 py-4 text-slate-100 sm:px-6 sm:py-6">
+      <div className="mx-auto flex h-full w-full max-w-[1500px] flex-col gap-4 rounded-[32px] border border-cyan-300/10 bg-[#081A35] p-4 shadow-panel sm:p-6">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-cyan-300/10 pb-5">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-orange-200">Conversation Detail</p>
-            <h1 className="mt-2 text-3xl font-bold text-white">Admin Review</h1>
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Conversation Detail</p>
+            <h1 className="mt-2 text-xl font-semibold text-white">Admin Review</h1>
           </div>
           <button
             onClick={() => navigate("/admin/dashboard")}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
           >
             Back to Admin Dashboard
           </button>
         </header>
 
         {!detail ? (
-          <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 text-slate-300">Loading conversation...</div>
+          <div className="rounded-3xl border border-cyan-300/10 bg-[#112742] p-6 text-slate-300">Loading conversation...</div>
         ) : (
           <div className="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[1.15fr,0.85fr]">
-            <section className="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/65">
-              <div className="border-b border-white/10 px-5 py-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-sky-200">Chat Messages</p>
+            <section className="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-cyan-300/10 bg-[#081A35]">
+              <div className="border-b border-cyan-300/10 px-5 py-4">
+                <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Chat Messages</p>
                 <div className="mt-2 text-sm text-slate-300">
                   User {detail.conversation.user_id} • {detail.conversation.task_type ?? "text"} •{" "}
                   {new Date(detail.conversation.created_at).toLocaleString()}
@@ -61,8 +61,10 @@ export default function AdminConversationDetailPage() {
                     return (
                       <div key={message.id} className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}>
                         <div
-                          className={`max-w-[80%] rounded-3xl px-4 py-3 text-sm leading-7 ${
-                            isAssistant ? "bg-white/10 text-slate-100" : "bg-gradient-to-r from-orange-500 to-amber-400 text-slate-950"
+                          className={`max-w-[80%] rounded-3xl border px-4 py-3 text-sm leading-6 ${
+                            isAssistant
+                              ? "border-white/10 bg-white/10 text-slate-100"
+                              : "border-cyan-300/20 bg-cyan-300/10 text-slate-100"
                           }`}
                         >
                           {message.content}
@@ -74,15 +76,15 @@ export default function AdminConversationDetailPage() {
               </div>
             </section>
 
-            <aside className="min-h-0 overflow-y-auto rounded-3xl border border-white/10 bg-slate-900/65 p-5">
+            <aside className="min-h-0 overflow-y-auto rounded-3xl border border-cyan-300/10 bg-[#081A35] p-5">
               <div className="grid gap-4">
                 <InfoCard title="Prompt" value={detail.conversation.prompt || "No prompt stored"} />
                 <InfoCard title="AI Output" value={detail.conversation.ai_output || "No output stored"} />
                 {detail.conversation.ai_output_file_url ? (
-                  <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
-                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Uploaded Output File</p>
+                  <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">Uploaded Output File</p>
                     <a
-                      className="mt-3 inline-block text-sm font-semibold text-sky-300 hover:text-sky-200"
+                      className="mt-3 inline-block text-sm font-semibold text-cyan-300 hover:text-cyan-200"
                       href={`http://localhost:8000${detail.conversation.ai_output_file_url}`}
                       target="_blank"
                       rel="noreferrer"
@@ -112,9 +114,9 @@ export default function AdminConversationDetailPage() {
 
 function InfoCard({ title, value }: { title: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-400">{title}</p>
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-100">{value}</p>
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+      <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">{title}</p>
+      <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-200">{value}</p>
     </div>
   );
 }
@@ -129,7 +131,7 @@ function StatsCard({
   issueType: string | null;
 }) {
   return (
-    <div className="grid gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 md:grid-cols-3">
+    <div className="grid gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 md:grid-cols-3">
       <Stat label="Rating" value={rating ? `${rating}/5` : "-"} />
       <Stat label="Sentiment" value={sentiment ?? "-"} />
       <Stat label="Issue Type" value={issueType ?? "-"} />
@@ -139,9 +141,9 @@ function StatsCard({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+    <div className="rounded-2xl border border-white/10 bg-[#0A1830] px-3 py-3">
       <p className="text-xs uppercase tracking-[0.24em] text-slate-400">{label}</p>
-      <p className="mt-2 text-sm font-semibold capitalize text-white">{value}</p>
+      <p className="mt-2 text-sm font-medium capitalize text-white">{value}</p>
     </div>
   );
 }
@@ -155,8 +157,8 @@ function TagCard({ title, items, accent }: { title: string; items: string[]; acc
   };
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-400">{title}</p>
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+      <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">{title}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {items.map((item) => (
           <span key={item} className={`rounded-full border px-3 py-2 text-sm ${accentClasses[accent]}`}>

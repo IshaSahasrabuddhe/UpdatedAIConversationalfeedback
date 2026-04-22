@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [insights, setInsights] = useState<InsightsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [expandedFeedback, setExpandedFeedback] = useState<number | null>(null);
+  const [activeLongText, setActiveLongText] = useState<{ title: string; content: string } | null>(null);
 
   useEffect(() => {
     void hydrate();
@@ -333,41 +333,18 @@ export default function AdminDashboardPage() {
           ) : null}
 
           {!loading && activeTab === "Conversations" ? (
-            <DataTable
-              columns={
-                conversations.length
-                  ? (Object.keys(conversations[0]) as Array<keyof AdminConversationRow>).map((field) => titleize(String(field)))
-                  : ["Conversation ID", "User ID", "Task Type", "Sentiment", "Rating", "Issue Type", "Created At"]
-              }
-              rows={conversations.map((conversation) =>
-                (conversations.length ? (Object.keys(conversations[0]) as Array<keyof AdminConversationRow>) : ([
-                  "conversation_id",
-                  "user_id",
-                  "task_type",
-                  "sentiment",
-                  "rating",
-                  "issue_type",
-                  "created_at",
-                ] as Array<keyof AdminConversationRow>)).map((field) => {
-                  const value = conversation[field];
-
-                  if (field === "created_at" && typeof value === "string") {
-                    return formatDate(value);
-                  }
-
-                  if (typeof value === "string") {
-                    return value.length > 32 ? `${value.slice(0, 29)}...` : value;
-                  }
-
-                  return value ?? "-";
-                })
-              )}
-              onRowClick={(index) => navigate(`/admin/conversations/${conversations[index].conversation_id}`)}
-            />
+            <div>
+              <p className="mb-3 text-sm text-slate-400">Click on a row to view the conversation</p>
+              <ConversationsTable
+                conversations={conversations}
+                onRowClick={(conversationId) => navigate(`/admin/conversations/${conversationId}`)}
+                onOpenLongText={(title, content) => setActiveLongText({ title, content })}
+              />
+            </div>
           ) : null}
 
           {!loading && activeTab === "Feedbacks" ? (
-            <FeedbackTable feedbacks={feedbacks} expandedFeedback={expandedFeedback} onToggleExpanded={setExpandedFeedback} />
+            <FeedbackTable feedbacks={feedbacks} onOpenLongText={(title, content) => setActiveLongText({ title, content })} />
           ) : null}
 
           {!loading && activeTab === "Users" ? (
@@ -600,6 +577,7 @@ export default function AdminDashboardPage() {
           ) : null}
         </section>
       </div>
+      <LongTextModal entry={activeLongText} onClose={() => setActiveLongText(null)} />
     </main>
   );
 }
@@ -713,8 +691,8 @@ function DataTable({
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-cyan-300/10 bg-[#112742] shadow">
-      <div className="max-h-[68vh] overflow-auto">
-        <table className="min-w-full text-left text-sm text-slate-200">
+      <div className="max-h-[68vh] overflow-x-auto overflow-y-auto">
+        <table className="w-full table-fixed text-left text-sm text-slate-200">
           <thead className="sticky top-0 bg-[#0b1d35]">
             <tr>
               {columns.map((column) => (
@@ -745,69 +723,138 @@ function DataTable({
   );
 }
 
+function ConversationsTable({
+  conversations,
+  onRowClick,
+  onOpenLongText,
+}: {
+  conversations: AdminConversationRow[];
+  onRowClick: (conversationId: number) => void;
+  onOpenLongText: (title: string, content: string) => void;
+}) {
+  const columns = ["Conversation ID", "User ID", "State", "Task Type", "Sentiment", "Rating", "Issue Type", "Context", "Created At"];
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-cyan-300/10 bg-[#112742] shadow">
+      <div className="max-h-[68vh] overflow-x-auto overflow-y-auto">
+        <table className="w-full table-fixed text-left text-sm text-slate-200">
+          <thead className="sticky top-0 bg-[#0b1d35]">
+            <tr>
+              {columns.map((column) => (
+                <th key={column} className="px-4 py-3 font-medium text-slate-300 whitespace-nowrap">
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {conversations.map((conversation) => {
+              const contextText = stringifyStructuredValue(conversation.context);
+
+              return (
+                <tr
+                  key={conversation.conversation_id}
+                  onClick={() => onRowClick(conversation.conversation_id)}
+                  className="border-t border-cyan-300/5 cursor-pointer transition hover:bg-white/5"
+                >
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.conversation_id}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.user_id}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.state}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.task_type ?? "-"}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.sentiment}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.rating ?? "-"}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{conversation.issue_type}</td>
+                  <td className="max-w-[250px] px-4 py-3 overflow-hidden">
+                    <LongTextCell
+                      value={contextText}
+                      emptyLabel="-"
+                      onClick={() => onOpenLongText(`Conversation ${conversation.conversation_id} Context`, contextText)}
+                    />
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">{formatDate(conversation.created_at)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function FeedbackTable({
   feedbacks,
-  expandedFeedback,
-  onToggleExpanded,
+  onOpenLongText,
 }: {
   feedbacks: AdminFeedbackRow[];
-  expandedFeedback: number | null;
-  onToggleExpanded: (feedbackId: number | null) => void;
+  onOpenLongText: (title: string, content: string) => void;
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-cyan-300/10 bg-[#112742] shadow">
-      <div className="max-h-[68vh] overflow-auto">
-        <table className="min-w-full text-left text-sm text-slate-200">
+      <div className="max-h-[68vh] overflow-x-auto overflow-y-auto">
+        <table className="w-full table-fixed text-left text-sm text-slate-200">
           <thead className="sticky top-0 bg-[#0b1d35]">
             <tr>
-              {["Feedback ID", "Conversation ID", "User ID", "Rating", "Sentiment", "Issue Type", "Issue Tags", "Summary", "Created At"].map(
-                (column) => (
-                  <th key={column} className="px-4 py-3 font-medium text-slate-300">
+              {[
+                "Feedback ID",
+                "Conversation ID",
+                "User ID",
+                "Rating",
+                "Sentiment",
+                "Issue Type",
+                "Positives",
+                "Negatives",
+                "Issue Tags",
+                "Summary",
+                "Created At",
+              ].map((column) => (
+                  <th key={column} className="px-4 py-3 font-medium text-slate-300 whitespace-nowrap">
                     {column}
                   </th>
-                )
-              )}
+                ))}
             </tr>
           </thead>
           <tbody>
             {feedbacks.map((feedback) => {
-              const expanded = expandedFeedback === feedback.feedback_id;
+              const positivesText = stringifyListValue(feedback.positives);
+              const negativesText = stringifyListValue(feedback.negatives);
+              const summaryText = feedback.summary || "No summary available";
+
               return (
                 <tr key={feedback.feedback_id} className="border-t border-cyan-300/5 align-top">
-                  <td className="px-4 py-3">{feedback.feedback_id}</td>
-                  <td className="px-4 py-3">{feedback.conversation_id}</td>
-                  <td className="px-4 py-3">{feedback.user_id}</td>
-                  <td className="px-4 py-3">{feedback.rating ?? "-"}</td>
-                  <td className="px-4 py-3 capitalize">{feedback.sentiment}</td>
-                  <td className="px-4 py-3 capitalize">{feedback.issue_type}</td>
-                  <td className="px-4 py-3">{feedback.issue_tags.join(", ") || "-"}</td>
-                  <td className="px-4 py-3 min-w-[260px]">
-                    <button
-                      type="button"
-                      onClick={() => onToggleExpanded(expanded ? null : feedback.feedback_id)}
-                      className="w-full text-left"
-                    >
-                      <span
-                        className="block leading-6 text-slate-200"
-                        style={
-                          expanded
-                            ? undefined
-                            : {
-                                display: "-webkit-box",
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: "vertical",
-                                overflow: "hidden",
-                              }
-                        }
-                      >
-                        {feedback.summary || "No summary available"}
-                      </span>
-                      {feedback.summary ? (
-                        <span className="mt-2 inline-block text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                          {expanded ? "Show Less" : "Expand"}
-                        </span>
-                      ) : null}
-                    </button>
+                  <td className="px-4 py-3 whitespace-nowrap">{feedback.feedback_id}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{feedback.conversation_id}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{feedback.user_id}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">{feedback.rating ?? "-"}</td>
+                  <td className="px-4 py-3 capitalize whitespace-nowrap">{feedback.sentiment}</td>
+                  <td className="px-4 py-3 capitalize whitespace-nowrap">{feedback.issue_type}</td>
+                  <td className="max-w-[250px] px-4 py-3 overflow-hidden">
+                    <LongTextCell
+                      value={positivesText}
+                      emptyLabel="-"
+                      onClick={() => onOpenLongText(`Feedback ${feedback.feedback_id} Positives`, positivesText)}
+                    />
+                  </td>
+                  <td className="max-w-[250px] px-4 py-3 overflow-hidden">
+                    <LongTextCell
+                      value={negativesText}
+                      emptyLabel="-"
+                      onClick={() => onOpenLongText(`Feedback ${feedback.feedback_id} Negatives`, negativesText)}
+                    />
+                  </td>
+                  <td className="max-w-[200px] px-4 py-3 overflow-hidden">
+                    <LongTextCell
+                      value={feedback.issue_tags.join(", ")}
+                      emptyLabel="-"
+                      onClick={() => onOpenLongText(`Feedback ${feedback.feedback_id} Issue Tags`, feedback.issue_tags.join(", "))}
+                    />
+                  </td>
+                  <td className="max-w-[250px] px-4 py-3 overflow-hidden">
+                    <LongTextCell
+                      value={summaryText}
+                      emptyLabel="No summary available"
+                      onClick={() => onOpenLongText(`Feedback ${feedback.feedback_id} Summary`, summaryText)}
+                    />
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">{formatDate(feedback.created_at)}</td>
                 </tr>
@@ -815,6 +862,74 @@ function FeedbackTable({
             })}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function LongTextCell({
+  value,
+  emptyLabel,
+  onClick,
+}: {
+  value: string;
+  emptyLabel: string;
+  onClick: () => void;
+}) {
+  const displayValue = value.trim() ? value : emptyLabel;
+  const interactive = Boolean(value.trim());
+
+  return (
+    <button
+      type="button"
+      title={displayValue}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (interactive) {
+          onClick();
+        }
+      }}
+      className={`w-full max-w-[250px] overflow-hidden rounded-md px-2 py-1 text-left text-ellipsis whitespace-nowrap transition ${
+        interactive ? "cursor-pointer hover:bg-white/5" : "cursor-default"
+      }`}
+    >
+      <span className="block overflow-hidden text-ellipsis whitespace-nowrap truncate leading-6 text-slate-200">
+        {displayValue}
+      </span>
+    </button>
+  );
+}
+
+function LongTextModal({
+  entry,
+  onClose,
+}: {
+  entry: { title: string; content: string } | null;
+  onClose: () => void;
+}) {
+  if (!entry) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 px-4 py-6" onClick={onClose}>
+      <div
+        className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-cyan-300/15 bg-[#0b1d35] shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-cyan-300/10 px-5 py-4">
+          <h3 className="text-base font-semibold text-white">{entry.title}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-cyan-300/15 bg-white/5 px-3 py-1.5 text-sm text-slate-200 transition hover:bg-white/10"
+          >
+            Close
+          </button>
+        </div>
+        <div className="overflow-y-auto px-5 py-4">
+          <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-6 text-slate-200">{entry.content}</pre>
+        </div>
       </div>
     </div>
   );
@@ -907,6 +1022,17 @@ function sumValues(items: Array<{ value: number }>) {
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString();
+}
+
+function stringifyListValue(value: string[] | null | undefined) {
+  return (value ?? []).filter(Boolean).join(", ");
+}
+
+function stringifyStructuredValue(value: Record<string, unknown> | null | undefined) {
+  if (!value || !Object.keys(value).length) {
+    return "";
+  }
+  return JSON.stringify(value, null, 2);
 }
 
 function formatTag(value: string) {

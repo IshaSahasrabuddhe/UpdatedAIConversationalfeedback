@@ -3,16 +3,18 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from app.schemas.chat import TaskType
+from app.schemas.chat import ConversationState, TaskType
 
 
 class AdminConversationRow(BaseModel):
     conversation_id: int
     user_id: int
+    state: ConversationState
     task_type: TaskType | None = None
     sentiment: str
     rating: int | None = None
     issue_type: str
+    context: dict[str, Any]
     created_at: datetime
 
 
@@ -52,6 +54,8 @@ class AdminFeedbackRow(BaseModel):
     rating: int | None = None
     sentiment: str
     issue_type: str
+    positives: list[str] = Field(default_factory=list)
+    negatives: list[str] = Field(default_factory=list)
     issue_tags: list[str] = Field(default_factory=list)
     summary: str = ""
     created_at: datetime
