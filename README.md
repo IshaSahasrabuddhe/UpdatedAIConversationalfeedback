@@ -21,8 +21,8 @@ The application is designed to feel simple on the surface while running a struct
 Check out the deployed website here:  
 [Deployed Website Link](https://convofeedback-frontend.onrender.com)  
 
-<sub>For the best experience, please sign up as a user first and then proceed with the admin login for a smoother transition.  
-If you encounter any issues, please refer to the demo video.</sub>
+For the best experience, please sign up as a user first and then proceed with the admin login for a smoother transition.  
+If you encounter any issues, please refer to the demo video.
 
 ---
 ## Video Demo
