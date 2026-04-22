@@ -17,13 +17,15 @@ The application is designed to feel simple on the surface while running a struct
 
 ## Live Demo
 
-Please Checkout the deployed website here-by copy pasting this link:
+Check out the deployed website here:  
+[Open Live App](https://convofeedback-frontend.onrender.com)
 
-`https://convofeedback-frontend.onrender.com`
+---
 
 ## Video Demo
 
-A walkthrough video demo is provided separately to show the full user flow, admin flow, and dashboard insights in action.
+Watch the full walkthrough (user flow, admin flow, and dashboard insights):  
+ [Watch Demo Video](https://drive.google.com/file/d/13IAQ6ehE-6TlfPXK7_OytNqiypyDSJhu/view?usp=sharing)
 
 ## Admin Login Credentials
 
