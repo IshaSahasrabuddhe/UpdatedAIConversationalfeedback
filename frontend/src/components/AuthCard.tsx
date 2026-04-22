@@ -69,7 +69,7 @@ export default function AuthCard(props: AuthCardProps) {
           </div>
         </div>
 
-        <div className="px-4 pb-4 pt-8 sm:px-6 sm:pb-6">
+        <div className="px-4 pb-4 pt-6 sm:px-5 sm:pb-5">
           <div className="mb-7">
             <p className="mb-3 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase leading-normal tracking-[0.28em] text-cyan-100/90">
               {props.badgeLabel || "Luminescent Insight"}

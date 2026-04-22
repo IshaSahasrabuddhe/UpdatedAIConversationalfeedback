@@ -35,7 +35,7 @@ export default function SignupPage() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-cyan-300/5 to-transparent" />
       <div className="relative z-10 flex w-full max-w-[720px] flex-col items-center">
         <div className="mb-10 text-center">
-          <h1 className="text-xl font-semibold leading-normal text-slate-100">
+          <h1 className="text-6xl font-semibold leading-normal text-slate-100">
             Luminescent <span className="text-cyan-300">Insight</span>
           </h1>
           <p className="mt-3 text-xs font-semibold uppercase leading-normal tracking-[0.28em] text-slate-400">

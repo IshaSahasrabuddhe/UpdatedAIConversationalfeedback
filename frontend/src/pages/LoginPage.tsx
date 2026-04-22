@@ -54,12 +54,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#081A35] px-6 py-10">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#081A35] px-6 py-6">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.08),transparent_28%),radial-gradient(circle_at_bottom,rgba(59,130,246,0.08),transparent_30%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-cyan-300/5 to-transparent" />
       <div className="relative z-10 flex w-full max-w-[720px] flex-col items-center">
         <div className="mb-10 text-center">
-          <h1 className="text-xl font-semibold leading-normal text-slate-100">
+          <h1 className="text-6xl font-semibold leading-normal text-slate-100">
             Review <span className="text-cyan-300">Sense</span>
           </h1>
           <p className="mt-3 text-xs font-semibold uppercase leading-normal tracking-[0.28em] text-slate-400">
@@ -73,7 +73,7 @@ export default function LoginPage() {
           subtitle={
             mode === "admin"
               ? "Use the separate admin access flow to review analytics, users, and collected insights."
-              : "Sign in to review feedback conversations and continue collecting structured input."
+              : "Sign in to review feedback and continue collecting structured input."
           }
           submitLabel={mode === "admin" ? "Login to Admin" : "Login to Dashboard"}
           alternateText={mode === "admin" ? "Need user access instead?" : "Need an account?"}
