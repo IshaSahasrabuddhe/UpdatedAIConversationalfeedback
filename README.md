@@ -15,15 +15,16 @@ The platform has two main experiences:
 
 The application is designed to feel simple on the surface while running a structured AI-assisted workflow underneath.
 
+
 ## Live Demo
 
 Check out the deployed website here:  
-[Deployed Website Link](https://convofeedback-frontend.onrender.com)
+[Deployed Website Link](https://convofeedback-frontend.onrender.com)  
 
-<u>For the best experience, please sign up as a user first and then proceed with the admin login for a smoother transition.</u>  
-If you encounter any issues, please refer to the demo video.
+<sub>For the best experience, please sign up as a user first and then proceed with the admin login for a smoother transition.  
+If you encounter any issues, please refer to the demo video.</sub>
+
 ---
-
 ## Video Demo
 
 Watch the full walkthrough (user flow, admin flow, and dashboard insights):  
