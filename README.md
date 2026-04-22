@@ -18,7 +18,7 @@ The application is designed to feel simple on the surface while running a struct
 ## Live Demo
 
 Check out the deployed website here:  
-[Open Live App](https://convofeedback-frontend.onrender.com)
+[https://convofeedback-frontend.onrender.com](https://convofeedback-frontend.onrender.com)
 
 ---
 
